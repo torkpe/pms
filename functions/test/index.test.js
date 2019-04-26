@@ -290,6 +290,21 @@ describe('locations', () => {
           done();
         });
       });
+
+      it('should not find invalid location key', (done) => {
+        request((myFunctions.pms))
+        .get(`/v1/locations/jkdjkdjkdf`)
+        .expect(400)
+        .end((error, response) => {
+          if (error) {
+            return done(error)
+          }
+          expect(response.body).property('response');
+          expect(response.body.response).equal('Invalid location key');
+          done();
+        });
+      });
+
       it('should not delete non-existing location', (done) => {
         request((myFunctions.pms))
         .delete(`/v1/locations/${createdLocation.key}/delete`)

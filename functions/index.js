@@ -118,10 +118,18 @@ app.put('/v1/locations/:locationKey/sub-location', (request, response) => {
 app.get('/v1/locations/:locationKey', (request, response) => {
   admin.database().ref(`locations/${request.params.locationKey}`).once('value')
   .then((location) => {
-    if (Object.keys(location.val()).length < 1 || location.val().isDeleted) {
-      response.status(404).send({ response: 'Cannot find location' })
+    if (location.val()) {
+      if (Object.keys(location.val()).length < 1 || location.val().isDeleted) {
+        response.status(404).send({ response: 'Cannot find location' })
+      } else {
+        const generatedLocation = location.val();
+        generatedLocation.totalResidents =
+        parseInt(generatedLocation.numberOfFemaleResidents, 10) +
+        parseInt(generatedLocation.numberOfMaleResidents, 10);
+        response.status(200).send({ response: generatedLocation });
+      }
     } else {
-      response.status(200).send({ response: location.val() });
+      response.status(400).send({ response: 'Invalid location key' })
     }
   });
 })
